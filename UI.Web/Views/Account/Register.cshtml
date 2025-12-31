@@ -1,0 +1,42 @@
+﻿@model Core.Concretes.DTOs.RegisterDTO
+
+@{
+    Layout = "_AuthLayout";
+    ViewBag.Title = "Register Form";
+}
+
+<form method="post" class="my-3">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-floating mb-3">
+        <input asp-for="Email" class="form-control" />
+        <label asp-for="Email" class="control-label"></label>
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="FirstName" class="form-control" />
+        <label asp-for="FirstName" class="control-label"></label>
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="LastName" class="form-control" />
+        <label asp-for="LastName" class="control-label"></label>
+        <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="Password" class="form-control" />
+        <label asp-for="Password" class="control-label"></label>
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="ConfirmPassword" class="form-control" />
+        <label asp-for="ConfirmPassword" class="control-label"></label>
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Register" class="btn btn-primary" />
+    </div>
+</form>
+<h6 class="text-center">
+    Already have an account? <a asp-action="login" asp-controller="account" class="link-primary">Login</a>
+</h6>

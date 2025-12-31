@@ -1,0 +1,119 @@
+﻿@using System.Security.Claims
+@model IEnumerable<Core.Concretes.DTOs.LeadListItemDTO>
+
+@{
+    ViewData["Title"] = "Leads Index";
+    var uid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+}
+
+<h1>Leads:</h1>
+@if (User.IsInRole("Admin"))
+{
+    <div class="btn-group btn-group-sm">
+        <a asp-action="create" asp-controller="leads" class="btn btn-primary">Create New Lead</a>
+        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#leadsImporter">Import From File</button>
+        <a asp-action="export" asp-controller="leads" class="btn btn-outline-success">Export To File</a>
+    </div>
+    <partial name="_LeadImportPartial" />
+}
+else
+{
+    <a asp-action="export" asp-controller="leads" class="btn btn-outline-success btn-sm">Export To File</a>
+}
+<hr />
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Contact Info</th>
+            <th>Source</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr id="lead_@item.Id" class="@(item.AssignedUserId == uid ? "bg-success" : "bg-light") bg-gradient bg-opacity-50">
+                <td>
+                    <button type="button" class="btn btn-link">@item.Name</button>
+                </td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.Email))
+                    {
+                        <p>
+                            <i class="fa-solid fa-envelope"></i>
+                            @item.Email
+                        </p>
+                    }
+                    @if (!string.IsNullOrEmpty(item.Phone))
+                    {
+                        <p>
+                            <i class="fa-solid fa-phone"></i>
+                            @item.Phone
+                        </p>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Source)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    @if (!User.IsInRole("Admin"))
+                    {
+                        if (item.AssignedUserId != uid)
+                        {
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="pickLead(@item.Id)">Pick</button>
+                        }
+                        else
+                        {
+                            <div class="dropdown">
+                                <button class="btn btn-light dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown">
+                                    Select a Activity
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fa-solid fa-phone-volume"></i>
+                                            Make Call
+                                        </a>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fa-solid fa-envelope"></i>
+                                            Send Email
+                                        </a>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fa-solid fa-handshake"></i>
+                                            Plan a Meeting
+                                        </a>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fa-solid fa-list-check"></i>
+                                            Create a Task
+                                        </a>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fa-solid fa-note-sticky"></i>
+                                            Take a Note
+                                        </a>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fa-solid fa-calendar-plus"></i>
+                                            Plan a Demo
+                                        </a>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fa-solid fa-clock"></i>
+                                            Follow Up
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        @item.AssignedUserName
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
