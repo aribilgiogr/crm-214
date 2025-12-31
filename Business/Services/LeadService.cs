@@ -34,7 +34,8 @@ namespace Business.Services
                         Subject = $"{type}: {lead.Name}",
                         Type = type,
                         RelatedLeadId = lead_id,
-                        AssignedUserId = user.FindFirstValue(ClaimTypes.NameIdentifier)
+                        AssignedUserId = user.FindFirstValue(ClaimTypes.NameIdentifier),
+                        DueDate = DateTime.Now,
                     };
                     await unitOfWork.ActivityRepository.CreateAsync(activity);
                     await unitOfWork.CommitAsync();
