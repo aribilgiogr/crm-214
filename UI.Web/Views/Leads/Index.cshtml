@@ -34,7 +34,7 @@ else
     <tbody>
         @foreach (var item in Model)
         {
-            <tr id="lead_@item.Id" class="@(item.AssignedUserId == uid ? "bg-success" : "bg-light") bg-gradient bg-opacity-50">
+            <tr id="lead_@item.Id" class="@(item.AssignedUserId == uid ? "bg-success" : "bg-light") bg-gradient bg-opacity-25">
                 <td>
                     <button type="button" class="btn btn-link">@item.Name</button>
                 </td>
@@ -69,6 +69,9 @@ else
                         }
                         else
                         {
+                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detailModal" data-lead-id="@item.Id">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
                             <div class="dropdown">
                                 <button class="btn btn-light dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown">
                                     Select a Activity
@@ -117,3 +120,212 @@ else
         }
     </tbody>
 </table>
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Modal body text goes here.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+           const detailModal = document.getElementById('detailModal')
+           if (detailModal) {
+               detailModal.addEventListener('show.bs.modal', event => {
+                   const button = event.relatedTarget
+                   const id = button.getAttribute('data-lead-id')
+                   fetch(`/api/leads/detail/${id}`)
+                   .then(res => res.json())
+                   .then(data => {
+                       const modalBody  = createModalContent(data)
+                       detailModal.innerHTML = modalBody
+                   })
+                   .catch(err=>console.error("Hata:",err))
+               })
+           }
+
+        function createModalContent(lead) {
+          // Durum ve kaynak etiketleri için Türkçe çeviriler
+          const statusLabels = {
+            0: '<span class="badge bg-info"><i class="bi bi-star"></i> Yeni</span>',
+            1: '<span class="badge bg-primary"><i class="bi bi-chat-dots"></i> İletişimde</span>',
+            2: '<span class="badge bg-success"><i class="bi bi-check-circle"></i> Nitelikli</span>',
+            3: '<span class="badge bg-warning"><i class="bi bi-file-text"></i> Teklif</span>',
+            4: '<span class="badge bg-purple"><i class="bi bi-handshake"></i> Müzakere</span>',
+            5: '<span class="badge bg-success"><i class="bi bi-trophy"></i> Dönüştürüldü</span>',
+            6: '<span class="badge bg-danger"><i class="bi bi-x-circle"></i> Kayıp</span>'
+          };
+
+          const sourceLabels = {
+            0: '<span class="badge bg-secondary"><i class="bi bi-question-circle"></i> Diğer</span>',
+            1: '<span class="badge bg-primary"><i class="bi bi-globe"></i> Web Sitesi</span>',
+            2: '<span class="badge bg-info"><i class="bi bi-people"></i> Referans</span>',
+            3: '<span class="badge bg-warning"><i class="bi bi-megaphone"></i> Kampanya</span>',
+            4: '<span class="badge bg-success"><i class="bi bi-shop"></i> Fuar</span>',
+            5: '<span class="badge bg-danger"><i class="bi bi-instagram"></i> Sosyal Medya</span>',
+            6: '<span class="badge bg-dark"><i class="bi bi-telephone-outbound"></i> Soğuk Arama</span>',
+            7: '<span class="badge bg-purple"><i class="bi bi-building"></i> Partner</span>'
+          };
+
+          const activityTypeLabels = {
+            1: '<i class="bi bi-telephone"></i> Arama',
+            2: '<i class="bi bi-envelope"></i> Email',
+            3: '<i class="bi bi-calendar-event"></i> Toplantı',
+            4: '<i class="bi bi-check-square"></i> Görev',
+            5: '<i class="bi bi-sticky"></i> Not',
+            6: '<i class="bi bi-display"></i> Demo',
+            7: '<i class="bi bi-arrow-repeat"></i> Takip'
+          };
+
+          // Tarih formatlama
+          function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('tr-TR', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          }
+
+          // Aktiviteler listesi
+          const activitiesHtml = lead.activities && lead.activities.length > 0
+            ? lead.activities.map(activity => `
+                <div class="list-group-item ${activity.isCompleted ? 'bg-light' : ''}">
+                  <div class="d-flex w-100 justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">
+                      ${activityTypeLabels[activity.type] || 'Aktivite'}
+                      ${activity.isCompleted ? '<span class="badge bg-success ms-2">Tamamlandı</span>' : '<span class="badge bg-warning ms-2">Bekliyor</span>'}
+                    </h6>
+                  </div>
+                  <p class="mb-1"><strong>Konu:</strong> ${activity.subject}</p>
+                  <small class="text-muted">
+                    <i class="bi bi-clock"></i> ${formatDate(activity.dueDate)}
+                    ${activity.completedDate ? `<br><i class="bi bi-check-circle-fill text-success"></i> Tamamlanma: ${formatDate(activity.completedDate)}` : ''}
+                  </small>
+                </div>
+              `).join('')
+            : '<div class="alert alert-info mb-0">Henüz aktivite bulunmuyor.</div>';
+
+          // Modal içeriği
+          const modalBody = `
+            <div class="lead-details">
+              <!-- İletişim Bilgileri -->
+              <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                  <h6 class="mb-0"><i class="bi bi-person-circle"></i> İletişim Bilgileri</h6>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <strong><i class="bi bi-person"></i> Ad Soyad:</strong>
+                      <div class="mt-1">${lead.name}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <strong><i class="bi bi-envelope"></i> Email:</strong>
+                      <div class="mt-1"><a href="mailto:${lead.email}">${lead.email}</a></div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <strong><i class="bi bi-telephone"></i> Telefon:</strong>
+                      <div class="mt-1"><a href="tel:${lead.phone}">${lead.phone}</a></div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <strong><i class="bi bi-person-badge"></i> Atanan Kullanıcı:</strong>
+                      <div class="mt-1">${lead.assignedUserName || '-'}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Durum ve Kaynak -->
+              <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                  <h6 class="mb-0"><i class="bi bi-info-circle"></i> Durum ve Kaynak</h6>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <strong>Durum:</strong>
+                      <div class="mt-1">${statusLabels[lead.status] || 'Bilinmiyor'}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <strong>Kaynak:</strong>
+                      <div class="mt-1">${sourceLabels[lead.source] || 'Bilinmiyor'}</div>
+                    </div>
+                    ${lead.convertedCustomerId ? `
+                    <div class="col-12">
+                      <div class="alert alert-success mb-0">
+                        <strong><i class="bi bi-check-circle"></i> Müşteriye Dönüştürüldü</strong><br>
+                        <small>Dönüşüm Tarihi: ${formatDate(lead.convertedDate)}</small>
+                      </div>
+                    </div>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Notlar -->
+              ${lead.notes ? `
+              <div class="card mb-3">
+                <div class="card-header bg-warning">
+                  <h6 class="mb-0"><i class="bi bi-sticky"></i> Notlar</h6>
+                </div>
+                <div class="card-body">
+                  <p class="mb-0">${lead.notes}</p>
+                </div>
+              </div>
+              ` : ''}
+
+              <!-- Aktiviteler -->
+              <div class="card">
+                <div class="card-header bg-success text-white">
+                  <h6 class="mb-0"><i class="bi bi-list-task"></i> Aktiviteler (${lead.activities?.length || 0})</h6>
+                </div>
+                <div class="card-body p-0">
+                  <div class="list-group list-group-flush">
+                    ${activitiesHtml}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+
+          return `
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+              <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                  <h5 class="modal-title">
+                    <i class="bi bi-person-lines-fill"></i> Lead Detayları: ${lead.name}
+                  </h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  ${modalBody}
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Düzenle
+                  </button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Kapat
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+    </script>
+}

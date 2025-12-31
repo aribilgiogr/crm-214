@@ -37,6 +37,8 @@ app.MapPost("/api/leads/pick/{id}", async (ILeadService service, ClaimsPrincipal
 
 app.MapPost("/api/leads/addactivity/{type}/{lead_id}", async (ILeadService service, ClaimsPrincipal user, ActivityType type, int lead_id) => await service.AddActivityAsync(type, lead_id, user));
 
+app.MapGet("/api/leads/detail/{lead_id}", async (ILeadService service, int lead_id) => await service.GetDetailAsync(lead_id));
+
 // routeconfig.cs buraya geldi.
 app.MapControllerRoute(
     name: "default",

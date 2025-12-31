@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Internal.Mappers;
 using Core.Abstracts;
 using Core.Abstracts.IServices;
 using Core.Concretes.DTOs;
@@ -68,14 +69,21 @@ namespace Business.Services
         {
             if (user.IsInRole("Admin"))
             {
-                var leads = await unitOfWork.LeadRepository.FindManyAsync(null, "ConvertedCustomer", "AssignedUser");
+                var leads = await unitOfWork.LeadRepository.FindManyAsync(null, "Activities", "ConvertedCustomer", "AssignedUser");
                 return mapper.Map<IEnumerable<LeadListItemDTO>>(leads);
             }
             else
             {
-                var leads = await unitOfWork.LeadRepository.FindManyAsync(x => x.AssignedUserId == user.FindFirstValue(ClaimTypes.NameIdentifier) || x.AssignedUserId == null, "ConvertedCustomer", "AssignedUser");
+                var leads = await unitOfWork.LeadRepository.FindManyAsync(x => x.AssignedUserId == user.FindFirstValue(ClaimTypes.NameIdentifier) || x.AssignedUserId == null, "Activities", "ConvertedCustomer", "AssignedUser");
                 return mapper.Map<IEnumerable<LeadListItemDTO>>(leads);
             }
+        }
+
+        public async Task<LeadDetailDTO?> GetDetailAsync(int lead_id)
+        {
+            var leads = await unitOfWork.LeadRepository.FindManyAsync(x=>x.Id == lead_id,"Activities", "AssignedUser", "ConvertedCustomer");
+            var lead = leads.FirstOrDefault();
+            return lead != null ? mapper.Map<LeadDetailDTO>(lead) : null;
         }
 
         public async Task<IResult> ImportFromFileAsync(IFormFile file)

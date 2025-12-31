@@ -14,5 +14,7 @@ namespace Core.Abstracts.IServices
         Task<IResult> PickLeadAsync(int leadId, ClaimsPrincipal user);
 
         Task<IResult> AddActivityAsync(ActivityType type, int lead_id, ClaimsPrincipal user);
+
+        Task<LeadDetailDTO?> GetDetailAsync(int lead_id);
     }
 }
