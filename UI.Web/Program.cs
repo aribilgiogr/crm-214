@@ -35,10 +35,7 @@ app.UseAuthorization(); // Eriþim yönetimi.
 
 app.MapPost("/api/leads/pick/{id}", async (ILeadService service, ClaimsPrincipal user, int id) => await service.PickLeadAsync(id, user));
 
-app.MapPost("/api/leads/addactivity/{type}/{lead_id}", (ILeadService service, ClaimsPrincipal user, ActivityType type, int lead_id) =>
-{
-
-});
+app.MapPost("/api/leads/addactivity/{type}/{lead_id}", async (ILeadService service, ClaimsPrincipal user, ActivityType type, int lead_id) => await service.AddActivityAsync(type, lead_id, user));
 
 // routeconfig.cs buraya geldi.
 app.MapControllerRoute(

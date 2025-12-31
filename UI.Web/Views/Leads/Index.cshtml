@@ -75,31 +75,31 @@ else
                                 </button>
                                 <ul class="dropdown-menu">
                                     <li>
-                                        <a class="dropdown-item" href="#" data-activity-type="Call">
+                                        <a class="dropdown-item" href="#" data-activity-type="Call" onclick="addActivity('Call',@item.Id)">
                                             <i class="fa-solid fa-phone-volume"></i>
                                             Make Call
                                         </a>
-                                        <a class="dropdown-item" href="#" data-activity-type="Email">
+                                        <a class="dropdown-item" href="#" data-activity-type="Email" onclick="addActivity('Email',@item.Id)">
                                             <i class="fa-solid fa-envelope"></i>
                                             Send Email
                                         </a>
-                                        <a class="dropdown-item" href="#" data-activity-type="Meet">
+                                        <a class="dropdown-item" href="#" data-activity-type="Meet" onclick="addActivity('Meet',@item.Id)">
                                             <i class="fa-solid fa-handshake"></i>
                                             Plan a Meeting
                                         </a>
-                                        <a class="dropdown-item" href="#" data-activity-type="Task">
+                                        <a class="dropdown-item" href="#" data-activity-type="Task" onclick="addActivity('Task',@item.Id)">
                                             <i class="fa-solid fa-list-check"></i>
                                             Create a Task
                                         </a>
-                                        <a class="dropdown-item" href="#" data-activity-type="Note">
+                                        <a class="dropdown-item" href="#" data-activity-type="Note" onclick="addActivity('Note',@item.Id)">
                                             <i class="fa-solid fa-note-sticky"></i>
                                             Take a Note
                                         </a>
-                                        <a class="dropdown-item" href="#" data-activity-type="Demo">
+                                        <a class="dropdown-item" href="#" data-activity-type="Demo" onclick="addActivity('Demo',@item.Id)">
                                             <i class="fa-solid fa-calendar-plus"></i>
                                             Plan a Demo
                                         </a>
-                                        <a class="dropdown-item" href="#" data-activity-type="FollowUp">
+                                        <a class="dropdown-item" href="#" data-activity-type="FollowUp" onclick="addActivity('FollowUp',@item.Id)">
                                             <i class="fa-solid fa-clock"></i>
                                             Follow Up
                                         </a>
