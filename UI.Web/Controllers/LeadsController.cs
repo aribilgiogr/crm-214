@@ -1,6 +1,7 @@
 ﻿using Core.Abstracts.IServices;
 using Core.Concretes.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace UI.Web.Controllers
@@ -78,11 +79,22 @@ namespace UI.Web.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Convert(CustomerCreateDTO model)
+        public async Task<IActionResult> Convert(CustomerCreateDTO model)
         {
+            model.AssignedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ModelState.Remove("AssignedUserId");
             if (ModelState.IsValid)
             {
+                var result = await service.ConvertToCustomer(model);
+                if (result.Success)
+                {
+                    return RedirectToAction("index", "customers");
+                }
 
+                foreach (var message in result.Messages)
+                {
+                    ModelState.AddModelError(string.Empty, message);
+                }
             }
             return View(model);
         }

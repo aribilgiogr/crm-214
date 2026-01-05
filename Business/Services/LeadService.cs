@@ -50,6 +50,34 @@ namespace Business.Services
             }
         }
 
+        public async Task<IResult> ConvertToCustomer(CustomerCreateDTO model)
+        {
+            try
+            {
+                var lead = await unitOfWork.LeadRepository.FindByIdAsync(model.LeadId);
+                if (lead != null)
+                {
+                    var customer = mapper.Map<Customer>(model);
+                    await unitOfWork.CustomerRepository.CreateAsync(customer);
+                    await unitOfWork.CommitAsync();
+                    // Bir db değişiklinde oluşan kayıttan gelecek olan Identity bilgisi commit edilmediği sürece aktarılamaz.
+
+                    lead.Status = LeadStatus.Converted;
+                    lead.UpdatedDate = DateTime.Now;
+                    lead.ConvertedDate = DateTime.Now;
+                    lead.ConvertedCustomerId = customer.Id;
+                    await unitOfWork.LeadRepository.UpdateAsync(lead);
+                    await unitOfWork.CommitAsync();
+                    return new SuccessResult();
+                }
+                return new ErrorResult(["Lead not found!"]);
+            }
+            catch (Exception ex)
+            {
+                return new ErrorResult(["Operation failed!", ex.Message]);
+            }
+        }
+
         public async Task<IResult> CreateAsync(LeadCreateDTO model)
         {
             try
@@ -81,7 +109,7 @@ namespace Business.Services
 
         public async Task<LeadDetailDTO?> GetDetailAsync(int lead_id)
         {
-            var leads = await unitOfWork.LeadRepository.FindManyAsync(x=>x.Id == lead_id,"Activities", "AssignedUser", "ConvertedCustomer");
+            var leads = await unitOfWork.LeadRepository.FindManyAsync(x => x.Id == lead_id, "Activities", "AssignedUser", "ConvertedCustomer");
             var lead = leads.FirstOrDefault();
             return lead != null ? mapper.Map<LeadDetailDTO>(lead) : null;
         }
