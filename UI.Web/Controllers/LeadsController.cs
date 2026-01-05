@@ -60,5 +60,31 @@ namespace UI.Web.Controllers
             }
             return Problem("File is empty!");
         }
+
+
+        public async Task<IActionResult> Convert(int id)
+        {
+            var lead = await service.GetDetailAsync(id);
+
+            if (lead == null) return NotFound();
+
+            var model = new CustomerCreateDTO
+            {
+                Name = lead.Name,
+                LeadId = id
+            };
+
+            return View(model);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult Convert(CustomerCreateDTO model)
+        {
+            if (ModelState.IsValid)
+            {
+
+            }
+            return View(model);
+        }
     }
 }

@@ -316,9 +316,9 @@ else
                   ${modalBody}
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-outline-primary">
-                    <i class="bi bi-pencil"></i> Düzenle
-                  </button>
+                  <a href="@Url.Action("convert", "leads")/${lead.id}" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Müşteriye Dönüştür
+                  </a>
                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="bi bi-x-circle"></i> Kapat
                   </button>
